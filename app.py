@@ -25,16 +25,16 @@ def profile(id):
 
 @app.route("/protected/<id>", methods=["GET", "POST"])
 def protected(id):
+
+    # If this is a POST request, user is submitting the password
     if request.method == "POST":
         password = request.form.get("password")
         if password == PASSWORDS.get(id):
-            session[f"auth_{id}"] = True
-            return render_template("protected.html", id=id)
+            # Password correct — show protected content for THIS request only
+            return render_template("protected.html", id=id, authorized=True)
         else:
-            return render_template("protected.html", id=id, error="Incorrect password")
+            # Incorrect password
+            return render_template("protected.html", id=id, error="Incorrect password", authorized=False)
 
-    # If user already logged in
-    if session.get(f"auth_{id}"):
-        return render_template("protected.html", id=id)
-
-    return render_template("protected.html", id=id)
+    # If this is a GET request, always show the password form
+    return render_template("protected.html", id=id, authorized=False)
