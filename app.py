@@ -1,11 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response, session, flash
+from flask import Flask, render_template, request, redirect, url_for
 import secrets
 import time
 
 app = Flask(__name__)
-app.secret_key = "YOUR_SECRET_KEY_HERE"   # Change this!
+app.secret_key = "YOUR_SECRET_KEY_HERE"  # Replace with a strong secret
 
-# Simple passwords for each profile (you can replace with a database later)
+# Simple passwords for each profile
 PASSWORDS = {
     "1": "pass1",
     "2": "pass2",
@@ -13,11 +13,9 @@ PASSWORDS = {
     "4": "pass4"
 }
 
-# Store one-time tokens in memory
-# Format: {token: (user_id, expiration_time)}
+# One-time tokens stored in memory: {token: (user_id, expiration_time)}
 TOKENS = {}
-TOKEN_EXPIRATION_SECONDS = 30  # token valid for 30 seconds
-
+TOKEN_EXPIRATION_SECONDS = 30  # Token valid for 30 seconds
 
 # --- ROUTES ---
 
@@ -42,11 +40,10 @@ def protected(id):
     for t in expired_tokens:
         del TOKENS[t]
 
-    # Handle POST — password submission
     if request.method == "POST":
         password = request.form.get("password")
         if password == PASSWORDS.get(id):
-            # Generate one-time token
+            # Generate a one-time token
             token = secrets.token_urlsafe(16)
             TOKENS[token] = (id, time.time() + TOKEN_EXPIRATION_SECONDS)
             # Redirect to GET with token
@@ -54,19 +51,18 @@ def protected(id):
         else:
             error = "Incorrect password"
 
-    # Handle GET with token
+    # GET request with token
     token = request.args.get("token")
     if token and token in TOKENS:
         token_user, exp = TOKENS[token]
         if token_user == id:
             show_content = True
-            # Invalidate the token immediately after use
+            # Immediately invalidate the token
             del TOKENS[token]
 
     return render_template("protected.html", id=id, error=error, show_content=show_content)
 
-
-
+# --- NO-CACHE HEADERS ---
 @app.after_request
 def add_no_cache_headers(response):
     if request.path.startswith("/protected"):
@@ -74,3 +70,6 @@ def add_no_cache_headers(response):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     return response
+
+if __name__ == "__main__":
+    app.run(debug=True)
