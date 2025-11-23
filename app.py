@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 import secrets
 import time
 
 app = Flask(__name__)
-app.secret_key = "YOUR_SECRET_KEY_HERE"  # Replace with a strong secret
+app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 PASSWORDS = {
     "1": "pass1",
@@ -13,17 +13,20 @@ PASSWORDS = {
 }
 
 TOKENS = {}
-TOKEN_EXPIRATION_SECONDS = 30  # Token valid for 30 seconds
+TOKEN_EXPIRATION_SECONDS = 30
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/profile/<id>")
 def profile(id):
-    if id not in ["1", "2", "3", "4"]:
-        return "Profile not found", 404
+    if id not in PASSWORDS:
+        abort(404)
     return render_template(f"profile{id}.html", id=id)
+
 
 @app.route("/protected/<id>", methods=["GET", "POST"])
 def protected(id):
@@ -32,37 +35,54 @@ def protected(id):
 
     # Clean expired tokens
     now = time.time()
-    expired_tokens = [t for t, (_, exp) in TOKENS.items() if exp < now]
-    for t in expired_tokens:
-        del TOKENS[t]
+    for t in list(TOKENS):
+        _, exp = TOKENS[t]
+        if exp < now:
+            TOKENS.pop(t, None)
 
     if request.method == "POST":
-        password = request.form.get("password")
-        if password == PASSWORDS.get(id):
+        pw = request.form.get("password")
+        if pw == PASSWORDS.get(id):
             token = secrets.token_urlsafe(16)
             TOKENS[token] = (id, time.time() + TOKEN_EXPIRATION_SECONDS)
-            # Redirect to GET with token
-            return redirect(url_for("protected", id=id, token=token))
+            return redirect(url_for("protected_with_token", id=id, token=token))
         else:
             error = "Incorrect password"
+        return render_template("protected.html", id=id, error=error, show_content=False)
 
-    token = request.args.get("token")
-    if token and token in TOKENS:
-        token_user, _ = TOKENS[token]
-        if token_user == id:
-            show_content = True
-            # Invalidate token immediately
-            del TOKENS[token]
+    # GET always shows form
+    return render_template("protected.html", id=id, error=error, show_content=False)
 
-    return render_template("protected.html", id=id, error=error, show_content=show_content)
+
+@app.route("/protected/<id>/<token>")
+def protected_with_token(id, token):
+    now = time.time()
+    for t in list(TOKENS):
+        _, exp = TOKENS[t]
+        if exp < now:
+            TOKENS.pop(t, None)
+
+    data = TOKENS.pop(token, None)
+    if not data:
+        return redirect(url_for("protected", id=id))
+    token_user, _ = data
+    if token_user != id:
+        return redirect(url_for("protected", id=id))
+
+    return render_template("protected.html", id=id, error=None, show_content=True)
+
 
 @app.after_request
 def add_no_cache_headers(response):
-    if request.path.startswith("/protected"):
-        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-        response.headers["Pragma"] = "no-cache"
-        response.headers["Expires"] = "0"
+    # Hardcore BFCache prevention
+    response.headers["Cache-Control"] = (
+        "no-store, no-cache, must-revalidate, max-age=0, private, no-transform"
+    )
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    response.headers["Vary"] = "*"
     return response
+
 
 if __name__ == "__main__":
     app.run(debug=True)
