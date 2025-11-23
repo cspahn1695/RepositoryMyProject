@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Protected Info for User {{ id }}</h2>
+
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+
+{% if session["auth_" ~ id] %}
+    {% if id == "1" %}
+        <p>Confidential details for User 1.</p>
+    {% elif id == "2" %}
+        <p>Sensitive information for User 2.</p>
+    {% elif id == "3" %}
+        <p>Protected content for User 3.</p>
+    {% elif id == "4" %}
+        <p>Private data for User 4.</p>
+    {% endif %}
+{% else %}
+    <form method="POST">
+        <label>Password:</label>
+        <input type="password" name="password" required>
+        <button type="submit">Submit</button>
+    </form>
+{% endif %}
+
+{% endblock %}

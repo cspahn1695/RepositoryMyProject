@@ -1,0 +1,40 @@
+body {
+    background: #f0f0f0;
+    font-family: Arial;
+    padding: 30px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-btn, .protected-btn {
+    display: inline-block;
+    padding: 15px;
+    background: #0077cc;
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    border-radius: 8px;
+}
+
+.profile-btn:hover, .protected-btn:hover {
+    background: #005fa3;
+}
+
+.profile-img {
+    width: 300px;
+    border-radius: 10px;
+}
+
+.error {
+    color: red;
+}
