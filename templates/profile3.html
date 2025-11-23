@@ -1,24 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Profile {{ 3 }}</h2>
 
-<p>Welcome to User {{ 3 }}'s profile!</p>
+<h2>Profile 3</h2>
 
-<!-- Contact form -->
-<h3>Send a message to User {{ 3 }}</h3>
+<p>Welcome to User 3's profile!</p>
+
+<p>
+  <a href="{{ url_for('protected', id='3') }}">
+    ➤ Go to User 3's protected page
+  </a>
+</p>
+
+<h3>Send a message to User 3</h3>
 <form method="POST">
     <textarea name="message" rows="4" cols="50" required></textarea><br>
     <button type="submit">Send</button>
 </form>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul>
-      {% for msg in messages %}
-        <li>{{ msg }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
 {% endblock %}

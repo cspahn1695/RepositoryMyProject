@@ -20,15 +20,16 @@ PASSWORDS = {
 TOKENS = {}
 TOKEN_EXPIRATION_SECONDS = 30
 
-# --- Phone numbers / SMS gateway placeholders ---
-# Format: "phone_number@carrier_sms_gateway"
-# User1 fully implemented with T-Mobile; others are placeholders
-PHONE_GATEWAYS = {
-    "1": "6307796807@tmomail.net",  # Replace with real number
-    "2": "user2_placeholder",       # Add later
-    "3": "user3_placeholder",       # Add later
-    "4": "user4_placeholder"        # Add later
+# --- Email recipients for each profile ---
+RECIPIENT_EMAILS = {
+    "1": "cspahn21@outlook.com",
+    "2": "cspahn21@outlook.com",
+    "3": "cspahn21@outlook.com",
+    "4": "cspahn21@outlook.com"
 }
+
+SENDER_EMAIL = "floor142589436@gmail.com"
+SENDER_PASSWORD = "hfxl foyr gdmr qhxv"
 
 # --- SQLite database ---
 DB_FILE = "messages.db"
@@ -49,7 +50,7 @@ def init_db():
 
 init_db()
 
-# --- Helper to insert message ---
+# --- Helper to store message ---
 def store_message(user_id, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -67,29 +68,24 @@ def get_messages(user_id):
     conn.close()
     return results
 
-# --- Helper to send SMS via email-to-SMS gateway ---
-def send_sms_via_email(user_id, message_text):
-    recipient = PHONE_GATEWAYS.get(user_id)
-    if recipient is None or "placeholder" in recipient:
-        # Skip sending if phone number not configured
+# --- Send EMAIL (not SMS) ---
+def send_email_message(user_id, message_text):
+    recipient = RECIPIENT_EMAILS.get(user_id)
+    if not recipient:
         return
 
-    # Configure email (you can use PythonAnywhere SMTP settings)
-    # Replace with your actual sender email
-    sender_email = "floor142589436@gmail.com"
     msg = MIMEText(message_text)
-    msg['Subject'] = f"Message for User {user_id}"
-    msg['From'] = sender_email
-    msg['To'] = recipient
+    msg["Subject"] = f"New website message for User {user_id}"
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = recipient
 
     try:
-        # For PythonAnywhere, use their SMTP server
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:  # Or your SMTP host
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
-            server.login("floor142589436@gmail.com", "hfxl foyr gdmr qhxv")
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.send_message(msg)
     except Exception as e:
-        print(f"Failed to send SMS/email: {e}")
+        print("Email send failed:", e)
 
 # --- ROUTES ---
 @app.route("/")
@@ -104,10 +100,8 @@ def profile(id):
     if request.method == "POST":
         message = request.form.get("message")
         if message:
-            # Store in DB
             store_message(id, message)
-            # Send SMS if phone configured
-            send_sms_via_email(id, message)
+            send_email_message(id, message)
             flash("Your message was sent successfully!")
             return redirect(url_for("profile", id=id))
 
@@ -116,9 +110,8 @@ def profile(id):
 @app.route("/protected/<id>", methods=["GET", "POST"])
 def protected(id):
     error = None
-    show_content = False
 
-    # Clean up expired tokens
+    # Clean expired tokens
     now = time.time()
     for t in list(TOKENS):
         _, exp = TOKENS[t]
@@ -128,15 +121,13 @@ def protected(id):
     if request.method == "POST":
         pw = request.form.get("password")
         if pw == PASSWORDS.get(id):
-            # Generate token
             token = secrets.token_urlsafe(16)
-            TOKENS[token] = (id, time.time() + 30)
+            TOKENS[token] = (id, time.time() + TOKEN_EXPIRATION_SECONDS)
             return redirect(url_for("protected_with_token", id=id, token=token))
         else:
             error = "Incorrect password"
         return render_template("protected.html", id=id, error=error, show_content=False, messages=[])
 
-    # GET to /protected/<id> → show password form
     return render_template("protected.html", id=id, error=None, show_content=False, messages=[])
 
 @app.route("/protected/<id>/<token>")
@@ -151,12 +142,11 @@ def protected_with_token(id, token):
     if not data or data[0] != id:
         return redirect(url_for("protected", id=id))
 
-    # Fetch messages for this user
     messages = get_messages(id)
     return render_template("protected.html", id=id, error=None, show_content=True, messages=messages)
 
 @app.after_request
-def add_no_cache(response):
+def no_cache(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
