@@ -25,23 +25,20 @@ def profile(id):
 
 @app.route("/protected/<id>", methods=["GET", "POST"])
 def protected(id):
-    authorized = False
     error = None
+    show_content = False
 
-    # If POST, check password
     if request.method == "POST":
         password = request.form.get("password")
         if password == PASSWORDS.get(id):
-            # Redirect to GET with a temporary query param
-            return redirect(url_for("protected", id=id, authorized="1"))
+            # Show protected content ONLY for this request
+            show_content = True
         else:
             error = "Incorrect password"
 
-    # GET request
-    if request.method == "GET" and request.args.get("authorized") == "1":
-        authorized = True
+    return render_template("protected.html", id=id, error=error, show_content=show_content)
 
-    return render_template("protected.html", id=id, authorized=authorized, error=error)
+
 
 @app.after_request
 def add_no_cache_headers(response):
