@@ -86,7 +86,7 @@ def send_sms_via_email(user_id, message_text):
         # For PythonAnywhere, use their SMTP server
         with smtplib.SMTP("smtp.gmail.com", 587) as server:  # Or your SMTP host
             server.starttls()
-            server.login("floor142589436@gmail.com", "Wheatonorlandofire56@")
+            server.login("floor142589436@gmail.com", "hfxl foyr gdmr qhxv")
             server.send_message(msg)
     except Exception as e:
         print(f"Failed to send SMS/email: {e}")
