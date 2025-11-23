@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, make_response, session
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"   # Change this!
@@ -38,3 +38,11 @@ def protected(id):
 
     # If this is a GET request, always show the password form
     return render_template("protected.html", id=id, authorized=False)
+
+@app.after_request
+def add_no_cache_headers(response):
+    if request.path.startswith("/protected"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
