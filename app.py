@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
+import secrets
+import time
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"  # Replace with a strong secret
 
-# Passwords for each profile
 PASSWORDS = {
     "1": "pass1",
     "2": "pass2",
@@ -11,7 +12,8 @@ PASSWORDS = {
     "4": "pass4"
 }
 
-# --- ROUTES ---
+TOKENS = {}
+TOKEN_EXPIRATION_SECONDS = 30  # Token valid for 30 seconds
 
 @app.route("/")
 def index():
@@ -28,20 +30,34 @@ def protected(id):
     error = None
     show_content = False
 
-    # Only show protected content immediately after correct POST
+    # Clean expired tokens
+    now = time.time()
+    expired_tokens = [t for t, (_, exp) in TOKENS.items() if exp < now]
+    for t in expired_tokens:
+        del TOKENS[t]
+
     if request.method == "POST":
         password = request.form.get("password")
         if password == PASSWORDS.get(id):
-            show_content = True
+            token = secrets.token_urlsafe(16)
+            TOKENS[token] = (id, time.time() + TOKEN_EXPIRATION_SECONDS)
+            # Redirect to GET with token
+            return redirect(url_for("protected", id=id, token=token))
         else:
             error = "Incorrect password"
 
+    token = request.args.get("token")
+    if token and token in TOKENS:
+        token_user, _ = TOKENS[token]
+        if token_user == id:
+            show_content = True
+            # Invalidate token immediately
+            del TOKENS[token]
+
     return render_template("protected.html", id=id, error=error, show_content=show_content)
 
-# --- NO-CACHE HEADERS ---
 @app.after_request
 def add_no_cache_headers(response):
-    # Apply to all protected pages
     if request.path.startswith("/protected"):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
