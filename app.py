@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response, session
+from flask import Flask, render_template, request, redirect, url_for, make_response, session, flash
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"   # Change this!
@@ -25,19 +25,23 @@ def profile(id):
 
 @app.route("/protected/<id>", methods=["GET", "POST"])
 def protected(id):
+    authorized = False
+    error = None
 
-    # If this is a POST request, user is submitting the password
+    # If POST, check password
     if request.method == "POST":
         password = request.form.get("password")
         if password == PASSWORDS.get(id):
-            # Password correct — show protected content for THIS request only
-            return render_template("protected.html", id=id, authorized=True)
+            # Redirect to GET with a temporary query param
+            return redirect(url_for("protected", id=id, authorized="1"))
         else:
-            # Incorrect password
-            return render_template("protected.html", id=id, error="Incorrect password", authorized=False)
+            error = "Incorrect password"
 
-    # If this is a GET request, always show the password form
-    return render_template("protected.html", id=id, authorized=False)
+    # GET request
+    if request.method == "GET" and request.args.get("authorized") == "1":
+        authorized = True
+
+    return render_template("protected.html", id=id, authorized=authorized, error=error)
 
 @app.after_request
 def add_no_cache_headers(response):
