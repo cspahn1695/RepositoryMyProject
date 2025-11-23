@@ -3,45 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <title>My Website</title>
-
-    <!-- HARDCORE NO-CACHE + NO BFCache -->
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta http-equiv="Cache-Control" content="private">
-    <meta http-equiv="Cache-Control" content="no-transform">
-    <meta http-equiv="Vary" content="*">
-
-    <!-- Disable BFCache: Chrome, Firefox, Edge, Safari -->
-    <script>
-        window.onunload = function() {};
-    </script>
-
-    <!-- Simple styling (optional) -->
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
+            background-color: #f2f2f2;
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
         }
         .error {
             color: red;
             font-weight: bold;
         }
+        textarea {
+            width: 100%;
+            max-width: 500px;
+        }
         button {
+            margin-top: 5px;
+            padding: 6px 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            background-color: #fff;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .flash-messages {
             margin-top: 10px;
+            color: green;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
-
 </head>
 <body>
-
     <header>
         <h1>My Website</h1>
-        <hr>
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a> |
+            <a href="{{ url_for('profile', id='1') }}">User 1</a> |
+            <a href="{{ url_for('profile', id='2') }}">User 2</a> |
+            <a href="{{ url_for('profile', id='3') }}">User 3</a> |
+            <a href="{{ url_for('profile', id='4') }}">User 4</a>
+        </nav>
     </header>
-
-    {% block content %}
-    {% endblock %}
-
+    <div class="container">
+        {% block content %}{% endblock %}
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              <ul>
+                {% for msg in messages %}
+                  <li>{{ msg }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
+    </div>
+    <footer>
+        <p>&copy; {{ current_year if current_year else "2025" }} My Website</p>
+    </footer>
 </body>
 </html>

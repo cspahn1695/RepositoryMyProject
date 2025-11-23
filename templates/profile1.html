@@ -1,11 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>User 1 Profile</h2>
+<h2>Profile {{ 1 }}</h2>
 
-<img src="{{ url_for('static', filename='images/user1.jpg') }}" class="profile-img">
+<p>Welcome to User {{ 1 }}'s profile!</p>
 
-<p>This is sample text for user 1’s profile.</p>
+<!-- Contact form -->
+<h3>Send a message to User {{ 1 }}</h3>
+<form method="POST">
+    <textarea name="message" rows="4" cols="50" required></textarea><br>
+    <button type="submit">Send</button>
+</form>
 
-<a class="protected-btn" href="/protected/1">Access Password-Protected Info</a>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for msg in messages %}
+        <li>{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
 {% endblock %}

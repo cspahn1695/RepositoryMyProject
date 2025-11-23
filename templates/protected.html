@@ -1,26 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Protected Info for User {{ id }}</h2>
+<h2>Protected Info for User {{ id }}</h2>
 
-  {% if error %}
-    <p class="error">{{ error }}</p>
-  {% endif %}
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
 
-  {% if show_content %}
+{% if show_content %}
     {% if id == "1" %}
-      <p>Confidential content for User 1.</p>
+        <p>Confidential content for User 1.</p>
     {% elif id == "2" %}
-      <p>Confidential content for User 2.</p>
+        <p>Confidential content for User 2.</p>
     {% elif id == "3" %}
-      <p>Confidential content for User 3.</p>
+        <p>Confidential content for User 3.</p>
     {% elif id == "4" %}
-      <p>Confidential content for User 4.</p>
+        <p>Confidential content for User 4.</p>
     {% endif %}
-  {% else %}
+
+    <h3>Messages sent to you:</h3>
+    {% if messages %}
+        <ul>
+        {% for message, timestamp in messages %}
+            <li>[{{ timestamp }}] {{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No messages yet.</p>
+    {% endif %}
+{% else %}
     <form method="POST">
-      <label>Password</label>
-      <input type="password" name="password" required>
-      <button type="submit">Submit</button>
+        <label>Password</label>
+        <input type="password" name="password" required>
+        <button type="submit">Submit</button>
     </form>
-  {% endif %}
+{% endif %}
 {% endblock %}
