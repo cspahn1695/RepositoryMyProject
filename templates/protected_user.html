@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Messages for Profile {{ user_id }}</h2>
+
+{% if messages %}
+<ul>
+    {% for msg, timestamp in messages %}
+    <li>[{{ timestamp }}] {{ msg }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No messages yet.</p>
+{% endif %}
+
+<p>
+    <a href="/protected/{{ token }}"><button>Back to Menu</button></a>
+</p>
+
+{% endblock %}

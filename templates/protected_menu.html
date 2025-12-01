@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Admin Panel</h2>
+<p>Select which profile’s messages you want to view:</p>
+
+<a href="/protected/{{ token }}/user/1"><button>Profile 1 Messages</button></a>
+<a href="/protected/{{ token }}/user/2"><button>Profile 2 Messages</button></a>
+<a href="/protected/{{ token }}/user/3"><button>Profile 3 Messages</button></a>
+<a href="/protected/{{ token }}/user/4"><button>Profile 4 Messages</button></a>
+
+{% endblock %}
