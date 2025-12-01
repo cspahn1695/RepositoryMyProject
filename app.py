@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 # ---- ONE PASSWORD ONLY ----
-PROTECTED_PASSWORD = "YOUR_SINGLE_PASSWORD"
+PROTECTED_PASSWORD = "pass1"
 
 # ---- Token Management ----
 TOKENS = {}
