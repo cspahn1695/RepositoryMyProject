@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Select a User Profile</h1>
-
 <div class="button-container">
     <a class="profile-btn" href="/profile/1">User 1</a>
     <a class="profile-btn" href="/profile/2">User 2</a>
@@ -9,4 +8,9 @@
     <a class="profile-btn" href="/profile/4">User 4</a>
 </div>
 
+<br><br>
+
+<a class="protected-btn" href="{{ url_for('protected') }}">
+    ➤ Go to password-protected message panel
+</a>
 {% endblock %}

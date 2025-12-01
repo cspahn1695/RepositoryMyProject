@@ -8,30 +8,25 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
-# --- Passwords for protected pages ---
-PASSWORDS = {
-    "1": "pass1",
-    "2": "pass2",
-    "3": "pass3",
-    "4": "pass4"
-}
+# ---- ONE PASSWORD ONLY ----
+PROTECTED_PASSWORD = "YOUR_SINGLE_PASSWORD"
 
-# --- Token management ---
+# ---- Token Management ----
 TOKENS = {}
 TOKEN_EXPIRATION_SECONDS = 30
 
-# --- Email recipients for each profile ---
+# ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
     "1": "cspahn21@outlook.com",
     "2": "cspahn21@outlook.com",
     "3": "cspahn21@outlook.com",
-    "4": "cspahn21@outlook.com"
+    "4": "cspahn21@outlook.com",
 }
 
 SENDER_EMAIL = "floor142589436@gmail.com"
 SENDER_PASSWORD = "hfxl foyr gdmr qhxv"
 
-# --- SQLite database ---
+# ---- Database ----
 DB_FILE = "messages.db"
 
 def init_db():
@@ -50,7 +45,8 @@ def init_db():
 
 init_db()
 
-# --- Helper to store message ---
+
+# ---- Store Message ----
 def store_message(user_id, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -59,16 +55,17 @@ def store_message(user_id, message):
     conn.commit()
     conn.close()
 
-# --- Helper to retrieve messages for a user ---
+# ---- Get Messages for a user ----
 def get_messages(user_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT message, timestamp FROM messages WHERE user_id=? ORDER BY id ASC", (user_id,))
+    c.execute("SELECT message, timestamp FROM messages WHERE user_id=? ORDER BY id ASC",
+              (user_id,))
     results = c.fetchall()
     conn.close()
     return results
 
-# --- Send EMAIL (not SMS) ---
+# ---- Send Email ----
 def send_email_message(user_id, message_text):
     recipient = RECIPIENT_EMAILS.get(user_id)
     if not recipient:
@@ -87,14 +84,18 @@ def send_email_message(user_id, message_text):
     except Exception as e:
         print("Email send failed:", e)
 
-# --- ROUTES ---
+
+# --------------------------------------------------
+# ROUTES
+# --------------------------------------------------
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
 @app.route("/profile/<id>", methods=["GET", "POST"])
 def profile(id):
-    if id not in PASSWORDS:
+    if id not in ["1", "2", "3", "4"]:
         abort(404)
 
     if request.method == "POST":
@@ -107,8 +108,10 @@ def profile(id):
 
     return render_template(f"profile{id}.html", id=id)
 
-@app.route("/protected/<id>", methods=["GET", "POST"])
-def protected(id):
+
+# ---- SINGLE PROTECTED PAGE ----
+@app.route("/protected", methods=["GET", "POST"])
+def protected():
     error = None
 
     # Clean expired tokens
@@ -120,37 +123,51 @@ def protected(id):
 
     if request.method == "POST":
         pw = request.form.get("password")
-        if pw == PASSWORDS.get(id):
+        if pw == PROTECTED_PASSWORD:
             token = secrets.token_urlsafe(16)
-            TOKENS[token] = (id, time.time() + TOKEN_EXPIRATION_SECONDS)
-            return redirect(url_for("protected_with_token", id=id, token=token))
+            TOKENS[token] = ("ALL", time.time() + TOKEN_EXPIRATION_SECONDS)
+            return redirect(url_for("protected_with_token", token=token))
         else:
             error = "Incorrect password"
-        return render_template("protected.html", id=id, error=error, show_content=False, messages=[])
 
-    return render_template("protected.html", id=id, error=None, show_content=False, messages=[])
+    return render_template("protected.html", error=error, show_content=False, grouped_messages={})
 
-@app.route("/protected/<id>/<token>")
-def protected_with_token(id, token):
+
+@app.route("/protected/<token>")
+def protected_with_token(token):
     now = time.time()
+
+    # Clean expired tokens
     for t in list(TOKENS):
         _, exp = TOKENS[t]
         if exp < now:
             TOKENS.pop(t, None)
 
     data = TOKENS.pop(token, None)
-    if not data or data[0] != id:
-        return redirect(url_for("protected", id=id))
+    if not data or data[0] != "ALL":
+        return redirect(url_for("protected"))
 
-    messages = get_messages(id)
-    return render_template("protected.html", id=id, error=None, show_content=True, messages=messages)
+    grouped_messages = {
+        "1": get_messages("1"),
+        "2": get_messages("2"),
+        "3": get_messages("3"),
+        "4": get_messages("4"),
+    }
 
+    return render_template("protected.html",
+                           error=None,
+                           show_content=True,
+                           grouped_messages=grouped_messages)
+
+
+# ---- Prevent Browser Caching (IMPORTANT) ----
 @app.after_request
 def no_cache(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     return response
+
 
 if __name__ == "__main__":
     app.run(debug=True)
