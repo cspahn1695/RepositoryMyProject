@@ -1,15 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-
 <h2>Profile 4</h2>
 
-<p>Welcome to User 4's profile!</p>
-f
+<div style="display: flex; gap: 20px; align-items: flex-start;">
+    
+    <div style="flex: 1;">
+        <p>Welcome to User 4's profile!</p>
 
-<h3>Send a message to User 4</h3>
-<form method="POST">
-    <textarea name="message" rows="4" cols="50" required></textarea><br>
-    <button type="submit">Send</button>
-</form>
+        <h3>Send a message to User 4</h3>
+        <form method="POST">
+            <textarea name="message" rows="4" required></textarea><br>
+            <button type="submit">Send</button>
+        </form>
+    </div>
 
+    <div>
+        <img src="{{ url_for('static', filename='images/user4.jpg') }}"
+             alt="User 4"
+             class="profile-img">
+    </div>
+
+</div>
 {% endblock %}
