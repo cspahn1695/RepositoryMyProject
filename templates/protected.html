@@ -1,17 +1,14 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Admin Access</h2>
+<h2>Admin Login</h2>
 
 {% if error %}
 <p class="error">{{ error }}</p>
 {% endif %}
 
-{% if not show_menu %}
 <form method="POST">
     <label>Password</label>
     <input type="password" name="password" required>
     <button type="submit">Submit</button>
 </form>
-{% endif %}
 {% endblock %}

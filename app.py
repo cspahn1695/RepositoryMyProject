@@ -1,21 +1,16 @@
-from flask import Flask, render_template, request, redirect, url_for, abort, flash
-import secrets
-import time
+from flask import Flask, render_template, request, redirect, url_for, abort, flash, session
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
+import time
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
-# Password for access
+# ---- ONE PASSWORD ONLY ----
 PROTECTED_PASSWORD = "pass1"
 
-# Token management
-TOKENS = {}
-TOKEN_EXPIRATION_SECONDS = 30
-
-# Email recipients
+# ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
     "1": "cspahn21@outlook.com",
     "2": "cspahn21@outlook.com",
@@ -26,9 +21,13 @@ RECIPIENT_EMAILS = {
 SENDER_EMAIL = "floor142589436@gmail.com"
 SENDER_PASSWORD = "hfxl foyr gdmr qhxv"
 
-# Database
+# ---- Database ----
 DB_FILE = "messages.db"
 
+
+# --------------------------------------------------
+# DATABASE SETUP
+# --------------------------------------------------
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -47,6 +46,7 @@ def init_db():
 init_db()
 
 
+# ---- Store Message ----
 def store_message(user_id, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -56,6 +56,7 @@ def store_message(user_id, message):
     conn.close()
 
 
+# ---- Get Messages for a user ----
 def get_messages(user_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -66,6 +67,7 @@ def get_messages(user_id):
     return results
 
 
+# ---- Send Email ----
 def send_email_message(user_id, message_text):
     recipient = RECIPIENT_EMAILS.get(user_id)
     if not recipient:
@@ -85,13 +87,14 @@ def send_email_message(user_id, message_text):
         print("Email send failed:", e)
 
 
-# -----------------------------
+# --------------------------------------------------
 # ROUTES
-# -----------------------------
+# --------------------------------------------------
 
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/profile/<id>", methods=["GET", "POST"])
 def profile(id):
@@ -99,85 +102,70 @@ def profile(id):
         abort(404)
 
     if request.method == "POST":
-        msg = request.form.get("message")
-        if msg:
-            store_message(id, msg)
-            send_email_message(id, msg)
+        message = request.form.get("message")
+        if message:
+            store_message(id, message)
+            send_email_message(id, message)
             flash("Your message was sent successfully!")
             return redirect(url_for("profile", id=id))
 
     return render_template(f"profile{id}.html", id=id)
 
 
-# ------ PASSWORD PAGE -------
+# --------------------------------------------------
+# PASSWORD-PROTECTED AREA (NOW USING SESSION)
+# --------------------------------------------------
+
 @app.route("/protected", methods=["GET", "POST"])
 def protected():
     error = None
 
-    # Clean expired tokens
-    now = time.time()
-    for t in list(TOKENS):
-        _, exp = TOKENS[t]
-        if exp < now:
-            TOKENS.pop(t)
+    # Already logged in? Go to menu
+    if session.get("authenticated"):
+        return redirect(url_for("protected_menu"))
 
     if request.method == "POST":
         pw = request.form.get("password")
         if pw == PROTECTED_PASSWORD:
-            token = secrets.token_urlsafe(16)
-            TOKENS[token] = ("OK", time.time() + TOKEN_EXPIRATION_SECONDS)
-            return redirect(url_for("protected_menu", token=token))
+            session["authenticated"] = True
+            return redirect(url_for("protected_menu"))
         else:
             error = "Incorrect password"
 
-    return render_template("protected.html", error=error, show_menu=False)
+    return render_template("protected.html", error=error)
 
 
-# ------ MENU PAGE WITH 4 BUTTONS ------
-@app.route("/protected/<token>")
-def protected_menu(token):
-    now = time.time()
-
-    # Clean expired tokens
-    for t in list(TOKENS):
-        _, exp = TOKENS[t]
-        if exp < now:
-            TOKENS.pop(t)
-
-    data = TOKENS.get(token)
-    if not data or data[0] != "OK":
+@app.route("/protected/menu")
+def protected_menu():
+    if not session.get("authenticated"):
         return redirect(url_for("protected"))
+    return render_template("protected_menu.html")
 
-    return render_template("protected_menu.html", token=token)
 
-
-# ----- INDIVIDUAL PROFILE VIEW -----
-@app.route("/protected/<token>/user/<user_id>")
-def protected_messages(token, user_id):
-    if user_id not in ["1", "2", "3", "4"]:
-        abort(404)
-
-    now = time.time()
-
-    # Clean expired tokens
-    for t in list(TOKENS):
-        _, exp = TOKENS[t]
-        if exp < now:
-            TOKENS.pop(t)
-
-    data = TOKENS.get(token)
-    if not data or data[0] != "OK":
+@app.route("/protected/user/<user_id>")
+def protected_user(user_id):
+    if not session.get("authenticated"):
         return redirect(url_for("protected"))
 
     msgs = get_messages(user_id)
-
     return render_template("protected_user.html",
                            user_id=user_id,
-                           messages=msgs,
-                           token=token)
+                           messages=msgs)
 
 
-# ----- Disable caching -----
+# --------------------------------------------------
+# AUTO-LOGOUT WHEN LEAVING PROTECTED AREA
+# --------------------------------------------------
+
+@app.before_request
+def auto_logout_when_leaving_protected():
+    if session.get("authenticated"):
+        protected_paths = ("/protected", "/protected/menu", "/protected/user/")
+        if not request.path.startswith(protected_paths):
+            session.pop("authenticated", None)
+
+
+# ---- Prevent Browser Caching ----
 @app.after_request
 def no_cache(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
