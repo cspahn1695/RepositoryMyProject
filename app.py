@@ -3,22 +3,12 @@ import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 import time
-import json
-from werkzeug.security import check_password_hash
-import os
-
-
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
-# ---- LOAD HASHED PASSWORD FROM config.json ----
-
-config_path = os.path.join(os.path.dirname(__file__), "config.json")
-with open(config_path) as f:
-    config = json.load(f)
-
-
+# ---- ONE PASSWORD ONLY ----
+PROTECTED_PASSWORD = "pass1"
 
 # ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
@@ -123,7 +113,7 @@ def profile(id):
 
 
 # --------------------------------------------------
-# PASSWORD-PROTECTED AREA (SESSION-BASED)
+# PASSWORD-PROTECTED AREA (NOW USING SESSION)
 # --------------------------------------------------
 
 @app.route("/protected", methods=["GET", "POST"])
@@ -136,9 +126,7 @@ def protected():
 
     if request.method == "POST":
         pw = request.form.get("password")
-
-        # --- HASH CHECK HERE ---
-        if check_password_hash(config["protected_password_hash"], pw):
+        if pw == PROTECTED_PASSWORD:
             session["authenticated"] = True
             return redirect(url_for("protected_menu"))
         else:
