@@ -4,17 +4,15 @@ import smtplib
 from email.mime.text import MIMEText
 import time
 import json
+from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
-# ---- ONE PASSWORD ONLY ----
-#PROTECTED_PASSWORD = "pass1"
-
+# ---- LOAD HASHED PASSWORD FROM config.json ----
 with open("config.json") as f:
     config = json.load(f)
 
-PROTECTED_PASSWORD = config["protected_password"]
 
 # ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
@@ -119,7 +117,7 @@ def profile(id):
 
 
 # --------------------------------------------------
-# PASSWORD-PROTECTED AREA (NOW USING SESSION)
+# PASSWORD-PROTECTED AREA (SESSION-BASED)
 # --------------------------------------------------
 
 @app.route("/protected", methods=["GET", "POST"])
@@ -132,7 +130,9 @@ def protected():
 
     if request.method == "POST":
         pw = request.form.get("password")
-        if pw == PROTECTED_PASSWORD:
+
+        # --- HASH CHECK HERE ---
+        if check_password_hash(config["protected_password_hash"], pw):
             session["authenticated"] = True
             return redirect(url_for("protected_menu"))
         else:
@@ -158,7 +158,7 @@ def protected_user(user_id):
                            user_id=user_id,
                            messages=msgs)
 
-#
+
 # --------------------------------------------------
 # AUTO-LOGOUT WHEN LEAVING PROTECTED AREA
 # --------------------------------------------------
