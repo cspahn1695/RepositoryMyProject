@@ -1,24 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Profile 4</h2>
 
-<div style="display: flex; gap: 20px; align-items: flex-start;">
-    
+<h2>Adam Wagner</h2>
+
+<div style="display: flex; gap: 30px; align-items: flex-start;">
+
+    <!-- LEFT SIDE CONTENT -->
     <div style="flex: 1;">
-        <p>Welcome to User 4's profile!</p>
 
-        <h3>Send a message to User 4</h3>
+        <!-- ABOUT ME SECTION -->
+        <h3>About Me</h3>
+        <p>
+            Hi! I'm Adam Wagner. This is where you can write a brief bio such as 
+            your hobbies, interests, background, or anything else you want 
+            visitors to know about you. This section can be as long or short 
+            as you want.
+        </p>
+
+        <!-- MESSAGE FORM -->
+        <h3>Send a message to User 1</h3>
         <form method="POST">
             <textarea name="message" rows="4" required></textarea><br>
             <button type="submit">Send</button>
         </form>
+
     </div>
 
+    <!-- RIGHT-SIDE PRIMARY PHOTO -->
     <div>
-        <img src="{{ url_for('static', filename='images/user4.jpg') }}"
-             alt="User 4"
+        <img src="{{ url_for('static', filename='images/profile1.jpg') }}"
+             alt="User 1"
              class="profile-img">
     </div>
 
 </div>
+
+<!-- EXTRA PHOTOS SECTION -->
+<h3 style="margin-top: 40px;">More Photos</h3>
+
+<div style="display: flex; gap: 20px;">
+
+    <img src="{{ url_for('static', filename='images/profile4_extra1.jpg') }}"
+         alt="User 2 Extra Photo 1"
+         class="profile-img"
+         style="width: 250px;">
+
+
 {% endblock %}
