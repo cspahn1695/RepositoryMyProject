@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 import time
 import json
 from werkzeug.security import check_password_hash
+import os
 
 
 
@@ -12,8 +13,11 @@ app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 # ---- LOAD HASHED PASSWORD FROM config.json ----
-with open("config.json") as f:
+
+config_path = os.path.join(os.path.dirname(__file__), "config.json")
+with open(config_path) as f:
     config = json.load(f)
+
 
 
 # ---- Email recipients for each profile ----
