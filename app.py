@@ -152,7 +152,7 @@ def protected_user(user_id):
                            user_id=user_id,
                            messages=msgs)
 
-
+#
 # --------------------------------------------------
 # AUTO-LOGOUT WHEN LEAVING PROTECTED AREA
 # --------------------------------------------------
