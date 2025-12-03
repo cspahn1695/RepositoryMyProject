@@ -1,3 +1,3 @@
 {
-    "protected_password_hash": "REPLACED_BY_SCRIPT"
+    "protected_password_hash": "scrypt:32768:8:1$IgSffXsxCrDRLyzP$58fadb63c4d0b8baf484ebc540e4dc6e722a14e2f14069cdc9af23fa7cc255ec68d37505b7c02e95f041c903121392c550347f985054ed9229f75f48a8cb2856"
 }

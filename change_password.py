@@ -1,7 +1,10 @@
 import json
 import secrets
 import string
+import sys
+print("Running with:", sys.executable)
 from werkzeug.security import generate_password_hash
+
 
 
 def generate_password(length=12):
