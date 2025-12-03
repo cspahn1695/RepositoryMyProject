@@ -3,12 +3,18 @@ import sqlite3
 import smtplib
 from email.mime.text import MIMEText
 import time
+import json
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 # ---- ONE PASSWORD ONLY ----
-PROTECTED_PASSWORD = "pass1"
+#PROTECTED_PASSWORD = "pass1"
+
+with open("config.json") as f:
+    config = json.load(f)
+
+PROTECTED_PASSWORD = config["protected_password"]
 
 # ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
