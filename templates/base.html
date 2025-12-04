@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Website</title>
+    <title>IOWA SENIOR DESIGN PROFILES</title>
 
     <style>
         /* ------------ GLOBAL THEME ------------ */
@@ -16,16 +16,16 @@
         header, footer {
             text-align: center;
             margin-bottom: 20px;
-            color: #FFD700;                  /* gold/yellow */
+            color: #FFCD00;                  /* gold/yellow */
         }
 
         h1, h2, h3 {
-            color: #FFD700;                  /* yellow headers */
+            color: #FFCD00;                  /* yellow headers */
         }
 
         /* ------------ NAVIGATION ------------ */
         nav a {
-            color: #FFD700;                  /* yellow links */
+            color: #FFCD00;                  /* yellow links */
             text-decoration: none;
             font-weight: bold;
         }
@@ -52,8 +52,8 @@
             margin-top: 8px;
             padding: 10px 18px;
             background-color: #000;          /* black button */
-            color: #FFD700;                  /* yellow text */
-            border: 2px solid #FFD700;       /* yellow border */
+            color: #FFCD00;                  /* yellow text */
+            border: 2px solid #FFCD00;       /* yellow border */
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
@@ -63,7 +63,7 @@
         button:hover,
         .profile-btn:hover,
         .protected-btn:hover {
-            background-color: #FFD700;       /* invert */
+            background-color: #FFCD00;       /* invert */
             color: #000;                     /* black text */
         }
 
@@ -72,8 +72,8 @@
             width: 100%;
             max-width: 500px;
             background-color: #111;
-            color: #FFD700;
-            border: 1px solid #FFD700;
+            color: #FFCD00;
+            border: 1px solid #FFCD00;
             padding: 8px;
         }
 
@@ -88,13 +88,13 @@
             margin: 6px 0;
             padding: 10px;
             border-radius: 6px;
-            color: #FFD700;
+            color: #FFCD00;
             border: 1px solid #333;
         }
 
         /* ------------ LINKS ------------ */
         a {
-            color: #FFD700;
+            color: #FFCD00;
         }
 
         a:hover {
@@ -121,10 +121,10 @@
         <h1>My Website</h1>
         <nav>
             <a href="{{ url_for('index') }}">Home</a> |
-            <a href="{{ url_for('profile', id='1') }}">User 1</a> |
-            <a href="{{ url_for('profile', id='2') }}">User 2</a> |
-            <a href="{{ url_for('profile', id='3') }}">User 3</a> |
-            <a href="{{ url_for('profile', id='4') }}">User 4</a>
+            <a href="{{ url_for('profile', id='1') }}">Chris</a> |
+            <a href="{{ url_for('profile', id='2') }}">Brendan</a> |
+            <a href="{{ url_for('profile', id='3') }}">Freya</a> |
+            <a href="{{ url_for('profile', id='4') }}">Adam</a>
         </nav>
     </header>
 
@@ -145,7 +145,7 @@
     </div>
 
     <footer>
-        <p>&copy; {{ current_year if current_year else "2025" }} My Website</p>
+        <p>&copy; {{ current_year if current_year else "2025" }} IOWA SENIOR DESIGN PROFILES</p>
     </footer>
 
 </body>
