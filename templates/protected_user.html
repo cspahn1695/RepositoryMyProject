@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Messages for Profile {{ user_id }}</h2>
 
-{% if messages %}
-    <ul>
+<h2>Messages for User {{ user_id }}</h2>
+
+<a class="protected-btn" href="{{ url_for('protected_menu') }}">⬅ Back to Admin Menu</a>
+
+<ul>
     {% for msg, timestamp in messages %}
-        <li>[{{ timestamp }}] {{ msg }}</li>
+        <li><strong>{{ timestamp }}:</strong><br>{{ msg }}</li>
     {% endfor %}
-    </ul>
-{% else %}
-    <p>No messages yet for this profile.</p>
-{% endif %}
+</ul>
 
-<br>
-<a href="{{ url_for('protected_menu') }}">
-    <button>Back to Menu</button>
-</a>
+<!-- Prevent Back-Forward Cache -->
+<script>
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+</script>
 
 {% endblock %}

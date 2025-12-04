@@ -1,26 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Admin Control Panel</h2>
 
-<p>Select a profile to view messages:</p>
+<h2>Password-Protected Message Panel</h2>
 
-<a href="{{ url_for('protected_user', user_id='1') }}">
-    <button>Messages for Profile 1</button>
-</a>
-<br><br>
+<p>Select a user to view their messages:</p>
 
-<a href="{{ url_for('protected_user', user_id='2') }}">
-    <button>Messages for Profile 2</button>
-</a>
-<br><br>
+<a class="protected-btn" href="{{ url_for('protected_user', user_id='1') }}">Chris Messages</a><br>
+<a class="protected-btn" href="{{ url_for('protected_user', user_id='2') }}">Brendan Messages</a><br>
+<a class="protected-btn" href="{{ url_for('protected_user', user_id='3') }}">Freya Messages</a><br>
+<a class="protected-btn" href="{{ url_for('protected_user', user_id='4') }}">Adam Messages</a>
 
-<a href="{{ url_for('protected_user', user_id='3') }}">
-    <button>Messages for Profile 3</button>
-</a>
-<br><br>
-
-<a href="{{ url_for('protected_user', user_id='4') }}">
-    <button>Messages for Profile 4</button>
-</a>
+<!-- Prevent Back-Forward Cache -->
+<script>
+    // Works in all major browsers
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            // Page was restored from bfcache → force reload
+            window.location.reload();
+        }
+    });
+</script>
 
 {% endblock %}
