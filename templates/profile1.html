@@ -19,7 +19,7 @@
 
         <!-- MESSAGE FORM -->
         <h3>Send a message to Chris</h3>
-        <form method="POST">
+        <form method="POST" action="{{ url_for('profile', id=id) }}">
             <input type="text" name="subject" placeholder="Subject" required>
             <textarea name="message" placeholder="Message"></textarea>
             <button type="submit">Send</button>
