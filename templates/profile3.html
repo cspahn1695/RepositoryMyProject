@@ -34,3 +34,24 @@
 
 </div>
 
+<!-- EXTRA PHOTOS SECTION -->
+<h3 style="margin-top: 40px;">More Photos</h3>
+
+<div style="display: flex; gap: 20px;">
+
+    <img src="{{ url_for('static', filename='images/freya_extra_1.jpg') }}"
+         alt="User 3 Extra Photo 1"
+         class="profile-img"
+         style="width: 200px;">
+
+    <img src="{{ url_for('static', filename='images/freya_extra_2.jpg') }}"
+         alt="User 3 Extra Photo 2"
+         class="profile-img"
+         style="width: 200px;">
+    <img src="{{ url_for('static', filename='images/freya_extra_3.jpg') }}"
+         alt="User 3 Extra Photo 3"
+         class="profile-img"
+         style="width: 200px;">
+</div>
+
+{% endblock %}
