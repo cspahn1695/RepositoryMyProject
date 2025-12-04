@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
 # ---- ONE PASSWORD ONLY ----
-PROTECTED_PASSWORD = "Fall2025Lab3"
+PROTECTED_PASSWORD = "pass1"
 
 # ---- Email recipients for each profile ----
 RECIPIENT_EMAILS = {
