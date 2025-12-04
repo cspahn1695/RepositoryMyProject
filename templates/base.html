@@ -3,70 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <title>My Website</title>
+
     <style>
+        /* ------------ GLOBAL THEME ------------ */
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
-            background-color: #eddd08;
+            background-color: #000;          /* black background */
+            color: #f2f2f2;                  /* light text for readability */
         }
+
         header, footer {
             text-align: center;
             margin-bottom: 20px;
+            color: #FFD700;                  /* gold/yellow */
         }
+
         h1, h2, h3 {
-            color:  #eddd08;
+            color: #FFD700;                  /* yellow headers */
         }
-        .error {
-            color: red;
+
+        /* ------------ NAVIGATION ------------ */
+        nav a {
+            color: #FFD700;                  /* yellow links */
+            text-decoration: none;
             font-weight: bold;
         }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* ------------ CONTAINER ------------ */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1a1a1a;       /* dark grey (soft on eyes) */
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.2);
+        }
+
+        /* ------------ BUTTONS ------------ */
+        button,
+        .profile-btn,
+        .protected-btn {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 10px 18px;
+            background-color: #000;          /* black button */
+            color: #FFD700;                  /* yellow text */
+            border: 2px solid #FFD700;       /* yellow border */
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        button:hover,
+        .profile-btn:hover,
+        .protected-btn:hover {
+            background-color: #FFD700;       /* invert */
+            color: #000;                     /* black text */
+        }
+
+        /* ------------ TEXTAREA ------------ */
         textarea {
             width: 100%;
-            max-width: 750px;
+            max-width: 500px;
+            background-color: #111;
+            color: #FFD700;
+            border: 1px solid #FFD700;
+            padding: 8px;
         }
-        button {
-            margin-top: 5px;
-            padding: 6px 12px;
-            background-color: #eddd08;
-            color: #eddd08;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #eddd08;
-        }
+
+        /* ------------ LIST ITEMS ------------ */
         ul {
             list-style-type: none;
             padding-left: 0;
         }
+
         li {
-            background-color: #333;
-            margin: 5px 0;
-            padding: 8px;
-            border-radius: 4px;
+            background-color: #111;          /* dark card */
+            margin: 6px 0;
+            padding: 10px;
+            border-radius: 6px;
+            color: #FFD700;
+            border: 1px solid #333;
         }
-        .flash-messages {
-            margin-top: 10px;
-            color: green;
-            font-weight: bold;
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background-color: #eddd08;
-            padding: 20px;
-            border-radius: 8px;
-        }
+
+        /* ------------ LINKS ------------ */
         a {
-            text-decoration: none;
-            color: #333;
+            color: #FFD700;
         }
+
         a:hover {
             text-decoration: underline;
         }
+
+        /* ------------ ERRORS & FLASH ------------ */
+        .error {
+            color: #FF5555;
+            font-weight: bold;
+        }
+
+        .flash-messages {
+            margin-top: 10px;
+            color: #00FF7F;
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
+
     <header>
         <h1>My Website</h1>
         <nav>
@@ -77,8 +127,10 @@
             <a href="{{ url_for('profile', id='4') }}">User 4</a>
         </nav>
     </header>
+
     <div class="container">
         {% block content %}{% endblock %}
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <div class="flash-messages">
@@ -91,8 +143,10 @@
           {% endif %}
         {% endwith %}
     </div>
+
     <footer>
         <p>&copy; {{ current_year if current_year else "2025" }} My Website</p>
     </footer>
+
 </body>
 </html>
