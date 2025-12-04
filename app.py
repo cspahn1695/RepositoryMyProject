@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, url_for, abort, fla
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
-import time
 
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
@@ -50,8 +49,10 @@ init_db()
 def store_message(user_id, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("INSERT INTO messages (user_id, message, timestamp) VALUES (?, ?, datetime('now'))",
-              (user_id, message))
+    c.execute(
+        "INSERT INTO messages (user_id, message, timestamp) VALUES (?, ?, datetime('now'))",
+        (user_id, message)
+    )
     conn.commit()
     conn.close()
 
@@ -60,8 +61,10 @@ def store_message(user_id, message):
 def get_messages(user_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT message, timestamp FROM messages WHERE user_id=? ORDER BY id ASC",
-              (user_id,))
+    c.execute(
+        "SELECT message, timestamp FROM messages WHERE user_id=? ORDER BY id ASC",
+        (user_id,)
+    )
     results = c.fetchall()
     conn.close()
     return results
@@ -113,14 +116,14 @@ def profile(id):
 
 
 # --------------------------------------------------
-# PASSWORD-PROTECTED AREA (NOW USING SESSION)
+# PASSWORD-PROTECTED AREA
 # --------------------------------------------------
 
 @app.route("/protected", methods=["GET", "POST"])
 def protected():
     error = None
 
-    # Already logged in? Go to menu
+    # Already logged in?
     if session.get("authenticated"):
         return redirect(url_for("protected_menu"))
 
@@ -159,9 +162,20 @@ def protected_user(user_id):
 
 @app.before_request
 def auto_logout_when_leaving_protected():
+
+    # These paths DO NOT log the user out
+    allowed_paths = [
+        "/protected",
+        "/protected/",
+        "/protected/menu",
+        "/protected/user/",
+    ]
+
     if session.get("authenticated"):
-        protected_paths = ("/protected", "/protected/menu", "/protected/user/")
-        if not request.path.startswith(protected_paths):
+        path = request.path
+
+        # Allow only the protected paths or their subpaths
+        if not any(path.startswith(p) for p in allowed_paths):
             session.pop("authenticated", None)
 
 
