@@ -6,10 +6,14 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 app.secret_key = "YOUR_SECRET_KEY_HERE"
 
-# ---- ONE PASSWORD ONLY ----
+# --------------------------------------------------
+# ONE PASSWORD ONLY
+# --------------------------------------------------
 PROTECTED_PASSWORD = "pass1"
 
-# ---- Email recipients for each profile ----
+# --------------------------------------------------
+# Email recipients for each profile
+# --------------------------------------------------
 RECIPIENT_EMAILS = {
     "1": "cspahn21@outlook.com",
     "2": "cspahn21@outlook.com",
@@ -20,21 +24,21 @@ RECIPIENT_EMAILS = {
 SENDER_EMAIL = "floor142589436@gmail.com"
 SENDER_PASSWORD = "hfxl foyr gdmr qhxv"
 
-# ---- Database ----
+# --------------------------------------------------
+# DATABASE
+# --------------------------------------------------
 DB_FILE = "messages.db"
 
 
-# --------------------------------------------------
-# DATABASE SETUP
-# --------------------------------------------------
-
 def init_db():
+    """Creates DB table with subject + message."""
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT NOT NULL,
+            subject TEXT NOT NULL,
             message TEXT NOT NULL,
             timestamp TEXT NOT NULL
         )
@@ -42,27 +46,34 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 init_db()
 
 
-# ---- Store Message ----
-def store_message(user_id, message):
+# --------------------------------------------------
+# STORE MESSAGE
+# --------------------------------------------------
+def store_message(user_id, subject, message):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute(
-        "INSERT INTO messages (user_id, message, timestamp) VALUES (?, ?, datetime('now'))",
-        (user_id, message)
+        "INSERT INTO messages (user_id, subject, message, timestamp) "
+        "VALUES (?, ?, ?, datetime('now'))",
+        (user_id, subject, message)
     )
     conn.commit()
     conn.close()
 
 
-# ---- Get Messages for a user ----
+# --------------------------------------------------
+# FETCH MESSAGES
+# --------------------------------------------------
 def get_messages(user_id):
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute(
-        "SELECT message, timestamp FROM messages WHERE user_id=? ORDER BY id ASC",
+        "SELECT subject, message, timestamp FROM messages "
+        "WHERE user_id=? ORDER BY id ASC",
         (user_id,)
     )
     results = c.fetchall()
@@ -70,14 +81,16 @@ def get_messages(user_id):
     return results
 
 
-# ---- Send Email ----
-def send_email_message(user_id, message_text):
+# --------------------------------------------------
+# EMAIL SENDER
+# --------------------------------------------------
+def send_email_message(user_id, subject, message_text):
     recipient = RECIPIENT_EMAILS.get(user_id)
     if not recipient:
         return
 
     msg = MIMEText(message_text)
-    msg["Subject"] = f"New website message for User {user_id}"
+    msg["Subject"] = subject if subject else f"New message for Profile {user_id}"
     msg["From"] = SENDER_EMAIL
     msg["To"] = recipient
 
@@ -105,10 +118,15 @@ def profile(id):
         abort(404)
 
     if request.method == "POST":
-        message = request.form.get("message")
+        subject = request.form.get("subject", "").strip()
+        message = request.form.get("message", "").strip()
+
         if message:
-            store_message(id, message)
-            send_email_message(id, message)
+            if not subject:
+                subject = "No subject"
+
+            store_message(id, subject, message)
+            send_email_message(id, subject, message)
             flash("Your message was sent successfully!")
             return redirect(url_for("profile", id=id))
 
@@ -116,14 +134,13 @@ def profile(id):
 
 
 # --------------------------------------------------
-# PASSWORD-PROTECTED AREA
+# PASSWORD-PROTECTED
 # --------------------------------------------------
 
 @app.route("/protected", methods=["GET", "POST"])
 def protected():
     error = None
 
-    # Already logged in?
     if session.get("authenticated"):
         return redirect(url_for("protected_menu"))
 
@@ -174,12 +191,14 @@ def auto_logout_when_leaving_protected():
     if session.get("authenticated"):
         path = request.path
 
-        # Allow only the protected paths or their subpaths
+        # Allow only protected paths or their subpaths
         if not any(path.startswith(p) for p in allowed_paths):
             session.pop("authenticated", None)
 
 
-# ---- Prevent Browser Caching ----
+# --------------------------------------------------
+# DISABLE BROWSER CACHING
+# --------------------------------------------------
 @app.after_request
 def no_cache(response):
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
