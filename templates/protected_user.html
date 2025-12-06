@@ -1,11 +1,14 @@
-
+<!--
+All code in this file was developed using the help of ChatGPT
+-->
 {% extends "base.html" %}
 {% block content %}
 <h2>Messages for User {{ user_id }}</h2>
 <a class="protected-btn" href="{{ url_for('protected_menu') }}">⬅ Back to Admin Menu</a>
 <ul>
     {% for msg, timestamp in messages %}
-        <li><strong>{{ timestamp }}:</strong><br>{{ msg }}</li>
+        <li><strong>{{ timestamp }}:</strong><br>{{ msg }}</li> <!-- represents what the user will see on any pw-protected messages screen. There will be a button to go 
+        back to the admin menu, as well as a list of all the messages with timestamps.-->
     {% endfor %}
 </ul>
 <!-- Prevent Back-Forward Cache -->

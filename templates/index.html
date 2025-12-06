@@ -1,9 +1,12 @@
+<!--
+All code in this file was developed using the help of ChatGPT
+-->
 {% extends "base.html" %}
 {% block content %}
 
 <h1>Select a User Profile</h1>
 
-<div class="button-container">
+<div class="button-container"> <!-- buttons for all our profiles, which appear on the main page (Technically not needed)-->
     <a class="profile-btn" href="/profile/1">Chris</a>
     <a class="profile-btn" href="/profile/2">Brendan</a>
     <a class="profile-btn" href="/profile/3">Freya</a>
@@ -11,7 +14,7 @@
 </div>
 
 <!-- Add the picture here -->
-<div style="text-align: center; margin-top: 40px;">
+<div style="text-align: center; margin-top: 40px;"> <!-- main picture of the university of iowa-->
     <img src="{{ url_for('static', filename='images/Iowa.jpg') }}"
          alt="Homepage Image"
          style="width: 300px; border-radius: 10px;">

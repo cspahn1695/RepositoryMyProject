@@ -1,3 +1,6 @@
+<!--
+All code in this file was developed using the help of ChatGPT
+-->
 {% extends "base.html" %}
 {% block content %}
 
@@ -5,15 +8,15 @@
 
 <p>Select a user to view their messages:</p>
 
-<a class="protected-btn" href="{{ url_for('protected_user', user_id='1') }}">Chris Messages</a><br>
+<a class="protected-btn" href="{{ url_for('protected_user', user_id='1') }}">Chris Messages</a><br> <!-- on first password protected screen, there are 4 buttons; choosing one lets you see the messages sent to that profile-->
 <a class="protected-btn" href="{{ url_for('protected_user', user_id='2') }}">Brendan Messages</a><br>
 <a class="protected-btn" href="{{ url_for('protected_user', user_id='3') }}">Freya Messages</a><br>
 <a class="protected-btn" href="{{ url_for('protected_user', user_id='4') }}">Adam Messages</a>
 
 <!-- Prevent Back-Forward Cache -->
 <script>
-    // Works in all major browsers
-    window.addEventListener("pageshow", function (event) {
+    // Works in all major browsers <!-- increases security-->
+    window.addEventListener("pageshow", function (event) { 
         if (event.persisted) {
             // Page was restored from bfcache → force reload
             window.location.reload();

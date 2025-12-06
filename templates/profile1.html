@@ -1,3 +1,6 @@
+<!--
+All code in this file was developed using the help of ChatGPT
+-->
 {% extends "base.html" %}
 {% block content %}
 
@@ -20,7 +23,7 @@
         <!-- MESSAGE FORM -->
         <h3>Send a message to Chris</h3>
         <form method="POST">
-            <textarea name="message" rows="4" required></textarea><br>
+            <textarea name="message" rows="4" required></textarea><br> <!-- specify properties of the textbox and submit button-->
             <button type="submit">Send</button>
         </form>
 
@@ -31,7 +34,7 @@
 <!-- EXTRA PHOTOS SECTION -->
 <h3 style="margin-top: 40px;">More Photos</h3>
 
-<div style="display: flex; gap: 20px;">
+<div style="display: flex; gap: 20px;"> <!--- most profiles include 3-4 extra photos, with a certain width and top margin-->
 
     <img src="{{ url_for('static', filename='images/profile1_extra1.jpg') }}"
          alt="User 1 Extra Photo 1"
